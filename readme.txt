@@ -5,3 +5,5 @@ DeckLoading contains functions to move blocks from different positions into deck
 new_main contains the video processing functions
 QuirkleLogic contains functions which controls the quirkle move legality and movements
 RobotMotion contains the RobotStudio modules used for this assignment.
+
+RobotMotion and Communications was done by me.
