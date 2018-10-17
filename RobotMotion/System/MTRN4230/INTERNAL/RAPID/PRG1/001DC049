@@ -1,0 +1,72 @@
+MODULE PickUpDownBlock
+    
+    PROC Temp()
+        PickBlock 175, 0, 157, [0, 0.3827, -0.9239, 0];
+        
+    ENDPROC
+    
+    
+    PROC PickBlock(num X, num Y, num Z, orient Quat)    
+        VAR robtarget AboveBlock;
+        VAR robtarget OnBlock;
+        AboveBlock := pTableHome;
+        OnBlock := pTableHome;
+
+        AboveBlock.trans := [X, Y, 170];
+        AboveBlock.rot := Quat;
+        OnBlock.trans := [X, Y, Z];
+        !OnBlock.rot := Quat;
+
+        MoveJ AboveBlock, v150, fine, tSCup;
+        MoveJ OnBlock, v150, fine, tSCup;         
+
+        TurnVacOn;
+        WaitTime 0.5;
+
+        MoveJ AboveBlock, v150, fine, tSCup;
+         
+    ENDPROC
+
+    PROC DropBlock(num X, num Y, num Z, orient Quat)    
+        VAR robtarget AboveBlock;
+        VAR robtarget OnBlock;
+        AboveBlock := pTableHome;
+        OnBlock := pTableHome;
+
+        AboveBlock.trans := [X, Y, 170];
+        AboveBlock.rot := Quat;
+        OnBlock.trans := [X, Y, Z];
+        !OnBlock.rot := Quat;
+
+        MoveJ AboveBlock, v150, fine, tSCup;
+        MoveJ OnBlock, v150, fine, tSCup;         
+        
+        WaitTime 0.5;
+        TurnVacOff;
+
+        MoveJ AboveBlock, v150, fine, tSCup;
+         
+    ENDPROC
+    
+    PROC TurnVacOn()
+        
+        ! Set Vacuum system on.
+        SetDO DO10_1, 1;
+        
+        ! Set suction on
+        SetDO DO10_2, 1;
+        
+    ENDPROC
+    
+    ! This function sets output 1/Vac to 0
+    PROC TurnVacOff()
+        
+        ! Set suction off
+        SetDO DO10_2, 0;
+        ! Set Vacuum system off.
+        SetDO DO10_1, 0;
+    ENDPROC
+    
+
+        
+ENDMODULE

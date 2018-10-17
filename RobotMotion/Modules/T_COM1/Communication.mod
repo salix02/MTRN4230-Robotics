@@ -1,0 +1,265 @@
+MODULE Communication
+    ! This module deals with communications for commands to robot movements
+    ! It sets up a tcp/ip port 1025.
+    ! Joseph Salim
+    ! 171115
+    
+    !Movement Queue
+    CONST num MaxQueueConst := 50;
+    PERS num CommandModeQueue{MaxQueueConst};
+    PERS num ModeQueue{MaxQueueConst};
+    PERS pos PosQueue{MaxQueueConst};
+    PERS orient OrientQueue{MaxQueueConst};
+    PERS num MaxQueue := 50;
+    PERS num QCount := 0;
+    
+    
+    ! The socket connected to the client.
+    VAR socketdev client_socket;
+    PERS socketstatus status;
+    PERS string received_str;  
+    PERS num ready := 0;
+    PERS num VESready := 1;
+    
+    PERS num ResetFlag := 65;
+    
+    ! The host and port that we will be listening for a connection on.
+    ! CONST string host := "192.168.125.1";
+     CONST string host := "127.0.0.1";
+    
+    CONST num port := 1025;
+    
+    ! This is the main function for comms module
+    PROC Main()
+        ! for pose setting
+        VAR num movMode; !linear or joint
+        VAR num UpDown; ! pick up or drop block
+        VAR string speedStr;
+        VAR speeddata speedSet;
+        VAR pos robPos;
+        VAR orient robOrient;
+        VAR num PresetPos;
+        
+        ! comms variable
+        VAR num showMessage := 1;
+        VAR num stringLen;
+        
+        VAR string strStore;
+        VAR num RobotMode;
+        VAR bool ok;        
+        VAR num count := 0;
+        VAR num lastCnt;
+        VAR string strChk;
+        VAR num header;
+        VAR num device;
+        VAR num ioState;
+        VAR bool pause := FALSE;
+        
+        !initialise Queue Counter
+        QCount := 0;
+        ready := 0;
+        VESready := 0;
+                    
+        ListenForAndAcceptConnection;
+        
+        status := SocketGetStatus(client_socket);
+        
+        StartMove;
+        
+        WHILE status = SOCKET_CONNECTED DO
+            ! Receive a string from the client.
+            
+            SocketReceive client_socket \Str:=strStore \Time:=WAIT_MAX;
+            received_str := strStore;
+            
+            ! Check the emergency stop. if engaged don't send commands to
+            ! motion tasks
+            IF VES = 1 THEN
+                VESready := 1;
+            ENDIF
+            ! insta checks here
+            ok := StrToVal(StrPart(received_str,1,1),header);
+            
+            IF ok = TRUE THEN
+                
+                TEST header
+                
+                CASE 4:
+                ! io protocols
+                ok := StrToVal(StrPart(received_str,3,1), device);
+                ok := StrToVal(StrPart(received_str,5,1), ioState);
+                     
+                IORoutine device, ioState;
+                
+                CASE 5:
+                ! Pause Restart Signal
+                IF pause = FALSE THEN
+                    pause := TRUE;
+                    StopMove;
+                ELSEIF pause = TRUE THEN
+                    pause := FALSE;
+                    StartMove;
+                ENDIF
+                
+                CASE 6:
+                    IF QCount < MaxQueue THEN
+                        QCount := QCount + 1;
+                        ! Move to Preset Position
+                        ok := StrToVal(StrPart(received_str,3,1),PresetPos);
+                        CommandModeQueue{QCount} := 6;
+                        IF PresetPos = 0 THEN         
+                            ModeQueue{QCount} := 0;                  
+                        ENDIF
+                        IF PresetPos = 1 THEN
+                            ModeQueue{QCount} := 1;                      
+                        ENDIF
+                        IF PresetPos = 2 THEN
+                            ModeQueue{QCount} := 2;                      
+                        ENDIF
+                        IF PresetPos = 3 THEN
+                            ModeQueue{QCount} := 3;
+                        ENDIF
+                        ready := 1;
+                    ENDIF
+                
+                CASE 7:
+                    count := 0;
+                    IF QCount < MaxQueue THEN
+                        TPWrite ValToStr(QCount);
+                        !QCount := QCount + 1;
+                        Incr QCount;
+                        CommandModeQueue{QCount} := 7;                        
+                        ! for Move to point
+                        ! initialise
+                        strChk := "";
+                        
+                        IF showMessage = 1 THEN
+                            TPWrite "Start Case 7";
+                            TPWrite received_str;
+                        ENDIF
+                        
+                        stringLen := StrLen(received_str);
+                        received_str := StrPart(received_str,3,(stringLen-2));
+
+                        
+                        
+                        WHILE (strChk = "_") = FALSE DO
+                            !TPWrite "POTATO";
+                            count := count + 1; 
+                            strChk := StrPart(received_str,count,1);             
+                        ENDWHILE                    
+                             
+                        !store the movement mode from string 
+                        !count-1 because we don't want the underscore
+                        
+                        IF showMessage = 1 THEN
+                            TPWrite received_str;
+                            !TPWrite ValToStr(count);
+                            !TPWrite ValToStr(UpDown);
+                        ENDIF
+                        
+                                            
+                        ok := StrToVal(StrPart(received_str,1,count-1),UpDown);
+                        !where the next part of message is being read
+                        lastCnt := count + 1;  
+                        
+                        IF showMessage = 1 THEN
+                            !TPWrite ValToStr(UpDown);
+                        ENDIF
+                        ! robot speed component
+                        strChk := "";
+                        WHILE (strChk = "_") = FALSE DO
+                            count := count + 1; 
+                            strChk := StrPart(received_str,count,1);
+                        ENDWHILE
+                            
+                        speedStr := (StrPart(received_str,lastCnt,(count-lastCnt)));
+                        ok := StrToVal(speedStr,speedSet.v_tcp);
+                        speedSet.v_ori := 500;
+                        speedSet.v_leax := 5000;
+                        speedSet.v_reax := 1000;
+                        
+                        TPWrite "speed str";
+                        TPWrite speedStr;
+                        
+                        lastCnt := count + 1;
+                        
+                        strChk := "";
+                        ! robot position component                   
+                        WHILE (strChk = "_") = FALSE DO
+                            incr count; 
+                            strChk := StrPart(received_str,count,1);
+                        ENDWHILE
+                        ok := StrToVal(StrPart(received_str,lastCnt,(count-lastCnt)),robPos);
+                        
+                        !TPWrite "Rob Pos";
+                        !TPWrite StrPart(received_str,lastCnt,(count-lastCnt));
+                        !TPWrite ValToStr(robPos);
+                        lastCnt := count + 1;
+                        
+                        
+                        ! last part of the string
+                        !stringLen := StrLen(received_str); 
+                        ok := StrToVal(StrPart(received_str,lastCnt,(StrLen(received_str)-lastCnt+1)),robOrient);
+                        
+                        TPWrite ValToStr(QCount);
+                        ! stores the 
+                        ModeQueue{QCount} := UpDown;
+                        PosQueue{QCount} := robPos;
+                        OrientQueue{QCount} := robOrient;
+                        ready := 1;  
+                        TPWrite ValToStr(ready);
+                    ENDIF
+                
+                CASE 8:
+                    ResetFlag := ResetFlag + 1;
+                    QCount := 0;                    
+                    ready := 0;
+                ENDTEST
+                
+                
+                
+            ENDIF
+                
+            !TPWrite received_str;
+            
+            ! recheck current socket status
+            status := SocketGetStatus(client_socket);
+            
+        ENDWHILE       
+        
+        
+        CloseConnection;
+        
+        ! Send the string back to the client, adding a line feed character.
+        !SocketSend client_socket \Str:=(received_str + "\0A");
+        !SocketSend client_socket \NoOfBytes:=(RobotMode);
+        
+    ENDPROC
+    
+        PROC ListenForAndAcceptConnection()
+        
+        ! Create the socket to listen for a connection on.
+        VAR socketdev welcome_socket;
+        SocketCreate welcome_socket;
+        
+        ! Bind the socket to the host and port.
+        SocketBind welcome_socket, host, port;
+        
+        ! Listen on the welcome socket.
+        SocketListen welcome_socket;
+        
+        ! Accept a connection on the host and port.
+        SocketAccept welcome_socket, client_socket;
+        
+        ! Close the welcome socket, as it is no longer needed.
+        SocketClose welcome_socket;
+        
+    ENDPROC
+    
+    ! Close the connection to the client.
+    PROC CloseConnection()
+        SocketClose client_socket;
+    ENDPROC
+    
+ENDMODULE

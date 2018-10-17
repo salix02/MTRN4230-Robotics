@@ -1,0 +1,41 @@
+MODULE SetPose
+    ! This module moves the robot to a specified pose
+    ! Joseph Salim
+    ! 170909
+    
+    ! Moves the robot to a set position. Parameters include:
+    ! joint or linear mode
+    ! speed of movement
+    ! Position
+    ! orientation
+    PROC MoveToPos(VAR num mode, VAR speeddata spd, VAR pos posit, VAR orient robOr)
+        VAR robtarget pose;
+        
+        pose.trans := posit;
+        pose.rot := robOr;
+        pose.robconf := [0,0,0,0];
+        pose.extax := [9E9, 9E9, 9E9, 9E9, 9E9, 9E9];
+        
+        IF mode = 0 THEN
+            ! linear move
+            MoveL pose, spd, finesse, tSCup;
+            
+        ELSEIF mode = 1 THEN
+            ! joint move
+            MoveJ pose, spd, finesse, tSCup;
+        ENDIF        
+        
+        
+    ENDPROC
+    
+    ! target is the frame being used
+    ! Table's frame: pTableHome
+    ! Conveyor's frame: pConvHome
+    PROC SetPose2(robtarget target, num x_offset, num y_offset, num z_offset, speeddata speed, zonedata zone)
+        
+        ! Call 'MoveL' with the input arguments provided.
+        MoveL Offs(target, x_offset, y_offset, z_offset), speed, zone, tSCup;
+        
+    ENDPROC
+    
+ENDMODULE

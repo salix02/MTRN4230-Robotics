@@ -1,0 +1,107 @@
+MODULE JointMove
+    ! This module handles the motion commands when joint angles are 
+    ! specified. There are functions to set the whole robot to a 
+    ! defined joint angle set and also functions to move particular
+    ! joints by small increments.
+    ! Joseph Salim
+    ! 170909
+    
+    ! jointtarget := [[<robot axis>] [<External axis>]]
+    ! Page 1200 on rapid ref manual 
+    CONST jointtarget homeJoint := [[90, 0, 0, 0, 0, 0], [9E9, 9E9, 9E9, 9E9, 9E9, 9E9]];
+    CONST num incrementAngle := 20; !degrees
+    
+    VAR jointtarget currJointPos;
+    VAR jointtarget j1;
+    VAR jointtarget nextPos;
+    
+    ! this function moves the robot to a defined joint position
+    PROC MoveJointAng(jointtarget jPos)
+        MoveAbsJ jPos, robSpeed, finesse, tool0;
+    ENDPROC
+    
+    ! Move Joint 1 in the positive direction by "incrementAngle" 
+    PROC MoveJoint1Pos()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_1 :=  currJointPos.robax.rax_1 + incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC
+    
+    ! Move Joint 1 in the negative direction by "incrementAngle"
+    PROC MoveJoint1Neg()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_1 :=  currJointPos.robax.rax_1 - incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC
+    
+    ! Move Joint 2 in the positive direction by "incrementAngle"
+    PROC MoveJoint2Pos()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_2 :=  currJointPos.robax.rax_2 + incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC
+    
+    ! Move Joint 2 in the negative direction by "incrementAngle"
+    PROC MoveJoint2Neg()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_2 :=  currJointPos.robax.rax_2 - incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC
+    
+    ! Move Joint 3 in the positive direction by "incrementAngle"
+    PROC MoveJoint3Pos()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_3 :=  currJointPos.robax.rax_3 + incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC
+    
+    ! Move Joint 3 in the negative direction by "incrementAngle"
+    PROC MoveJoint3Neg()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_3 :=  currJointPos.robax.rax_3 - incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC
+
+    ! Move Joint 4 in the positive direction by "incrementAngle"
+    PROC MoveJoint4Pos()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_4 :=  currJointPos.robax.rax_4 + incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC
+    
+    ! Move Joint 4 in the negative direction by "incrementAngle"
+    PROC MoveJoint4Neg()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_4 :=  currJointPos.robax.rax_4 - incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC
+    
+    ! Move Joint 5 in the positive direction by "incrementAngle"
+    PROC MoveJoint5Pos()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_5 :=  currJointPos.robax.rax_5 + incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC
+    
+    ! Move Joint 5 in the negative direction by "incrementAngle"
+    PROC MoveJoint5Neg()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_5 :=  currJointPos.robax.rax_5 - incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC
+    
+    ! Move Joint 6 in the positive direction by "incrementAngle"
+    PROC MoveJoint6Pos()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_6 :=  currJointPos.robax.rax_6 + incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC        
+    
+    ! Move Joint 6 in the negative direction by "incrementAngle"
+    PROC MoveJoint6Neg()
+        currJointPos := CJointT();
+        currJointPos.robax.rax_6 :=  currJointPos.robax.rax_6 - incrementAngle;
+        MoveAbsJ currJointPos, robSpeed, finesse, tool0;
+    ENDPROC    
+
+ENDMODULE
