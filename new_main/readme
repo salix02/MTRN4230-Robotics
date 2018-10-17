@@ -1,0 +1,47 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%please read this first%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% result1 from table frame=[x,y,anble,color,shape,reach,table, deck, board?]
+% result1 from table frame=[x,y,anble,color,shape,reach]
+
+% ALL X AND Y ARE IN GLOBAL COORDINATES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% on_table is all the reachable blocks on the table
+%   [x, y, angle, color, shape]
+
+% not_inside_grid is the blocks on the table not board or deck and reachable
+%   [x, y, angle, color, shape]
+
+% on_board is the blocks on the board and reachable
+%   [x, y, angle, color, shape]
+
+% on_deck1 is the blocks on the deck 1 and reachable
+%   [x, y, angle, color, shape]
+
+% on_deck2 is the blocks on the deck 2 and reachable
+%   [x, y, angle, color, shape]
+
+% in_box is the blocks in the box and reachable
+%   [x, y, angle, color, shape]
+
+% msgPos is the desired global goal
+% if clicked inside deck or board, it will give centre of the cell
+% otherwise, it just returns the clicked global coordinate
+%   [x,y,z]
+
+% when click on the figure, the msgPos will be displayed
+% when click on the figure, cell number will be displayed for both deck and board
+% parameters for converting local to global need to be confirmed with Alvin
+
+% functions for questions, messages are prepared, need to send packed data
+% and unpack received data
+% functions for each questions could be executed in main loop by checking
+% buttons pressed in GUI
+% question 1.4
+%   fillDecks
+% question 1.5
+%   allBlocks2Box
+% question 1.6
+%   fillDecks_six
+% question 2.2, 2.2.1, 2.2.2, 2.2.3
+%   getMousePositionOnImage

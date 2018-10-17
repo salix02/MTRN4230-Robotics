@@ -1,0 +1,1 @@
+ [{"row":1,"column":1,"shape":"club","colour":"red"},{"row":1,"column":2,"shape":"club","colour":"red"},{"row":1,"column":3,"shape":"club","colour":"red"}]
